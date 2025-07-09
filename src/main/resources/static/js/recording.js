@@ -1,0 +1,283 @@
+class SeleniumIDEDetailed {
+        constructor() {
+            this.currentTest = 'Untitled';
+            this.commands = [
+                { command: 'open', target: 'https://example.com', value: '' },
+                { command: 'set window size', target: '1920x1080', value: '' },
+                { command: 'click', target: 'id=login-button', value: '' },
+                { command: 'type', target: 'id=username', value: 'testuser' },
+                { command: 'type', target: 'id=password', value: 'password123' },
+                { command: 'click', target: 'css=button[type="submit"]', value: '' },
+                { command: 'wait for element visible', target: 'css=.dashboard', value: '5000' },
+                { command: 'assert text', target: 'css=h1', value: 'Welcome' },
+                { command: 'click', target: 'css=.logout-btn', value: '' },
+                { command: 'close', target: '', value: '' }
+            ];
+            this.selectedRow = 1; // 0-based index
+
+            this.initializeElements();
+            this.bindEvents();
+            this.updateForm();
+        }
+
+        initializeElements() {
+            this.commandTableBody = document.getElementById('commandTableBody');
+            this.commandSelect = document.getElementById('commandSelect');
+            this.targetInput = document.getElementById('targetInput');
+            this.valueInput = document.getElementById('valueInput');
+            this.descriptionInput = document.getElementById('descriptionInput');
+            this.addTestBtn = document.getElementById('addTestBtn');
+        }
+
+        bindEvents() {
+            // Table row selection
+            this.commandTableBody.addEventListener('click', (e) => {
+                const row = e.target.closest('tr');
+                if (row) {
+                    this.selectRow(Array.from(row.parentNode.children).indexOf(row));
+                }
+            });
+
+            // Form updates
+            this.commandSelect.addEventListener('change', () => {
+                this.updateCommand();
+            });
+
+            this.targetInput.addEventListener('input', () => {
+                this.updateTarget();
+            });
+
+            this.valueInput.addEventListener('input', () => {
+                this.updateValue();
+            });
+
+            // Add test button
+            this.addTestBtn.addEventListener('click', () => {
+                this.addNewCommand();
+            });
+
+            // Toolbar buttons
+            document.querySelector('.icon-record').parentElement.addEventListener('click', () => {
+                this.toggleRecord();
+            });
+
+            document.querySelector('.icon-play').parentElement.addEventListener('click', () => {
+                this.playTest();
+            });
+
+            // Tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    e.target.classList.add('active');
+                });
+            });
+
+            document.getElementById('stopRecordingBtn').addEventListener('click', function() {
+                fetch('/api/recorder/stop', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loadRecordList(); 
+                });
+            });
+        }
+
+        selectRow(index) {
+            document.querySelectorAll('.command-table tr').forEach(row => {
+                row.classList.remove('selected');
+            });
+
+            const rows = this.commandTableBody.querySelectorAll('tr');
+            if (rows[index]) {
+                rows[index].classList.add('selected');
+                this.selectedRow = index;
+                this.updateForm();
+
+                rows[index].scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest'
+                });
+            }
+        }
+
+        updateForm() {
+            if (this.commands[this.selectedRow]) {
+                const cmd = this.commands[this.selectedRow];
+                this.commandSelect.value = cmd.command;
+                this.targetInput.value = cmd.target;
+                this.valueInput.value = cmd.value;
+            }
+        }
+
+        updateCommand() {
+            if (this.commands[this.selectedRow]) {
+                this.commands[this.selectedRow].command = this.commandSelect.value;
+                this.updateTableRow();
+            }
+        }
+
+        updateTarget() {
+            if (this.commands[this.selectedRow]) {
+                this.commands[this.selectedRow].target = this.targetInput.value;
+                this.updateTableRow();
+            }
+        }
+
+        updateValue() {
+            if (this.commands[this.selectedRow]) {
+                this.commands[this.selectedRow].value = this.valueInput.value;
+                this.updateTableRow();
+            }
+        }
+
+        updateTableRow() {
+            const rows = this.commandTableBody.querySelectorAll('tr');
+            const row = rows[this.selectedRow];
+            const cmd = this.commands[this.selectedRow];
+
+            if (row && cmd) {
+                row.cells[1].textContent = cmd.command;
+                row.cells[2].textContent = cmd.target;
+                row.cells[3].textContent = cmd.value;
+            }
+        }
+
+        addNewCommand() {
+            const newIndex = this.commands.length + 1;
+            const newCommand = { command: 'click', target: '', value: '' };
+            this.commands.push(newCommand);
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="row-number">${newIndex}</td>
+                <td>${newCommand.command}</td>
+                <td>${newCommand.target}</td>
+                <td>${newCommand.value}</td>
+            `;
+            this.commandTableBody.appendChild(row);
+
+            this.selectRow(this.commands.length - 1);
+        }
+
+        toggleRecord() {
+            const btn = document.querySelector('.icon-record').parentElement;
+            btn.classList.toggle('active');
+        }
+
+        playTest() {
+            const btn = document.querySelector('.icon-play').parentElement;
+            btn.classList.add('active');
+            setTimeout(() => {
+                btn.classList.remove('active');
+            }, 2000);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+                  new SeleniumIDEDetailed();
+              });
+
+              document.addEventListener('DOMContentLoaded', function () {
+                  const menuButtons = document.querySelectorAll('.menu-button');
+
+                  menuButtons.forEach(btn => {
+                      btn.addEventListener('click', function (e) {
+                          const menu = btn.nextElementSibling;
+
+                          // Ẩn tất cả các popup khác
+                          document.querySelectorAll('.context-menu').forEach(m => {
+                              if (m !== menu) m.classList.remove('show');
+                          });
+
+                          menu.classList.toggle('show');
+
+                          // Ngăn chặn propagation để click ngoài không đóng ngay
+                          e.stopPropagation();
+                      });
+                  });
+
+                  // Đóng popup khi click bên ngoài
+                  document.addEventListener('click', function () {
+                      document.querySelectorAll('.context-menu').forEach(m => m.classList.remove('show'));
+                  });
+              });
+
+              document.addEventListener("DOMContentLoaded", function () {
+                  const exportBtn = document.getElementById("openExportModal");
+                  const modal = document.getElementById("exportModal");
+                  const cancelBtn = document.getElementById("cancelExport");
+                  const form = document.getElementById("exportForm");
+
+                  // Gọi popup (gắn nút Export của bạn)
+                  if (exportBtn) {
+                      exportBtn.addEventListener("click", function () {
+                          modal.classList.remove("hidden");
+                      });
+                  }
+
+                  cancelBtn.addEventListener("click", function () {
+                      modal.classList.add("hidden");
+                  });
+
+                  form.addEventListener("submit", function (e) {
+                      e.preventDefault();
+                      const formData = new FormData(form);
+                      const selectedLang = formData.get("lang");
+                      console.log("Export as:", selectedLang);
+                      // Thêm logic xuất file tùy định dạng tại đây...
+
+                      modal.classList.add("hidden");
+                      alert("Exporting to: " + selectedLang);
+                  });
+              });
+
+          document.addEventListener("DOMContentLoaded", function () {
+          const renameModal = document.getElementById("renameModal");
+          const openRenameBtn = document.getElementById("openRenameModal"); // Gắn ID vào nút Rename trong context menu
+          const closeRenameBtn = document.getElementById("closeRename");
+          const cancelRenameBtn = document.getElementById("cancelRename");
+          const confirmRenameBtn = document.getElementById("confirmRename");
+          const renameInput = document.getElementById("renameInput");
+
+          let currentTestItem = null;
+
+          if (openRenameBtn) {
+              openRenameBtn.addEventListener("click", function () {
+                  currentTestItem = document.querySelector('.test-item.active'); // hoặc item nào đang chọn
+                  renameInput.value = currentTestItem?.textContent.trim() || "Untitled";
+                  renameModal.classList.remove("hidden");
+              });
+          }
+
+          closeRenameBtn.addEventListener("click", () => renameModal.classList.add("hidden"));
+          cancelRenameBtn.addEventListener("click", () => renameModal.classList.add("hidden"));
+
+          confirmRenameBtn.addEventListener("click", function () {
+              const newName = renameInput.value.trim();
+              if (newName && currentTestItem) {
+                  currentTestItem.textContent = newName;
+              }
+              renameModal.classList.add("hidden");
+          });
+      });
+
+      // Polling kiểm tra trạng thái session
+      function checkSessionStatus() {
+          fetch('/session-status')
+              .then(response => response.text())
+              .then(status => {
+                  if (status === 'closed') {
+                      // Hiển thị thông báo và chuyển về trang chủ
+                      alert('Trình duyệt record đã bị đóng. Các thao tác đã được ghi nhận!');
+                      window.location.href = '/';
+                  }
+              });
+      }
+      setInterval(checkSessionStatus, 2000);

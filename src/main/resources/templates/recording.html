@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/recording.css">
+</head>
+
+<body>
+
+<div class="window">
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+        <span th:text="${error}">Lỗi không xác định!</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Project Header -->
+    <div class="project-header">
+        <div class="project-title">Project: <span th:text="${folder}"></span></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="tests-header">
+                <span>Tests</span>
+            </div>
+
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search tests...">
+            </div>
+
+            <div class="test-item-container">
+                <div class="test-item active" data-test="Untitled">Untitled*</div>
+                <div class="menu-button">⋮</div>
+                <div class="context-menu hidden">
+                    <div class="menu-item" id="openRenameModal">Rename</div>
+                    <div class="menu-item" id="openExportModal">Export</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+
+            <!-- Command Table with Scrolling -->
+            <div class="table-container">
+                <div class="table-scroll-area">
+                    <table class="command-table">
+                        <thead>
+                        <tr>
+                            <th style="width: 200px;">Command</th>
+                            <th style="width: 300px;">Target</th>
+                            <th style="width: 500px;">Value</th>
+                        </tr>
+                        </thead>
+                        <tr th:each="cmd : ${commands}">
+                            <td th:text="${cmd.command}"></td>
+                            <td th:text="${cmd.target}"></td>
+                            <td th:text="${cmd.value}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Command Form -->
+                <div class="command-form">
+                    <label class="form-label">Command</label>
+                    <select class="form-select" id="commandSelect">
+                        <option value="close">close</option>
+                        <option value="open">open</option>
+                        <option value="click">click</option>
+                        <option value="type">type</option>
+                        <option value="set window size">set window size</option>
+                        <option value="wait for element visible">wait for element visible</option>
+                        <option value="assert text">assert text</option>
+                    </select>
+
+                    <label class="form-label">Target</label>
+                    <div class="input-with-dropdown">
+                        <input type="text" class="form-input" id="targetInput" style="border-radius: 2px 0 0 2px;">
+                        <div class="dropdown-btn icon-dropdown"></div>
+                        <div class="dropdown-btn icon-target" style="border-left: 1px solid #ccc;"></div>
+                        <div class="dropdown-btn icon-find" style="border-left: 1px solid #ccc;"></div>
+                    </div>
+
+                    <label class="form-label">Value</label>
+                    <input type="text" class="form-input" id="valueInput">
+
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" id="descriptionInput"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Export Modal -->
+    <div id="exportModal" class="modal export-modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">Select language</div>
+            <form id="exportForm">
+                <div class="radio-group">
+
+                    <label><input type="radio" name="lang" value="java-junit" checked> Java TestTest</label>
+                    <label><input type="radio" name="lang" value="js-mocha">Java TestNG XML</label>
+                    <label><input type="radio" name="lang" value="python-pytest"> Python pytest</label>
+                    <label><input type="radio" name="lang" value="ruby-rspec"> Ruby RSpec</label>
+                </div>
+
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn-export">EXPORT</button>
+                    <button type="button" class="btn-cancel" id="cancelExport">CANCEL</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Rename Modal -->
+    <div id="renameModal" class="modal rename-modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                Rename test case
+                <span class="modal-close" id="closeRename">&times;</span>
+            </div>
+            <div class="modal-body">
+                <label class="modal-label">TEST CASE NAME</label>
+                <input type="text" id="renameInput" class="modal-input" value="Untitled">
+            </div>
+            <div class="modal-footer">
+                <div class="menu-item" id="">Rename</div>
+
+                <button class="btn-cancel" id="cancelRename">CANCEL</button>
+            </div>
+        </div>
+    </div>
+    <!-- Hiển thị thông báo lỗi nếu có -->
+    <div th:if="${exportResult}" class="alert alert-success alert-dismissible fade show m-3" role="alert">
+        <span th:text="${exportResult}">Export result</span>
+        <div th:if="${testName}" class="mt-2">
+            <a th:href="@{/download-testng-xml(testName=${testName})}" class="btn btn-sm btn-primary me-2">
+                <i class="bi bi-download"></i> Download TestNG XML
+            </a>
+            <a th:href="@{/download-testng-java(testName=${testName})}" class="btn btn-sm btn-info">
+                <i class="bi bi-download"></i> Download Java Test
+            </a>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    
+    <div class="action-buttons m-3">
+        <form th:action="@{/stop}" method="post" style="display: inline;">
+            <button type="submit" class="btn btn-danger">Stop Recording</button>
+        </form>
+        
+        <form th:action="@{/export-testng}" method="post" style="display: inline; margin-left: 10px;">
+            <div class="input-group" style="width: 300px;">
+                <input type="text" name="testName" class="form-control" placeholder="Enter test name" required>
+                <button type="submit" class="btn btn-success">Export TestNG</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+<script th:src="@{/js/recording.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
