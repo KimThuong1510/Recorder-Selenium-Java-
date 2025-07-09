@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nhập URL</title>
+    <link rel="stylesheet" href="/css/url_style.css">
+</head>
+<body>
+<div class="modal">
+    <form th:action="@{/start}" method="post">
+        <div class="modal-header">
+            <span class="close-btn" onclick="window.history.back()">×</span>
+        </div>
+        <div class="modal-body">
+            <p>Vui lòng nhập URL của website mà bạn muốn bắt đầu record.</p>
+            <label>URL</label>
+            <input type="text" name="url" id="urlInput" required oninput="checkInput()">
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="cancel" onclick="window.history.back()">CANCEL</button>
+            <button type="submit" class="ok" id="startBtn" disabled>Bắt đầu Record</button>
+        </div>
+    </form>
+</div>
+<script th:src="@{/js/url_name.js}"></script>
+
+</body>
+</html>

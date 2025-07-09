@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Name your new project</title>
+    <link rel="stylesheet" href="/css/folder_style.css">
+</head>
+<body>
+<div class="modal">
+    <form th:action="@{/folder}" method="post">
+        <div class="modal-header">
+            Name your new project
+            <span class="close-btn" onclick="window.history.back()">×</span>
+        </div>
+        <div class="modal-body">
+            <p>Vui lòng nhập tên dự án bạn muốn record.</p>
+            <label>PROJECT NAME</label>
+            <input type="text" name="folder" id="folderInput" required oninput="checkInput()">
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="cancel" onclick="window.history.back()">CANCEL</button>
+            <button type="submit" class="ok" id="okBtn" disabled>OK</button>
+        </div>
+    </form>
+</div>
+<script th:src="@{/js/folder_name.js}"></script>
+
+</body>
+</html>
