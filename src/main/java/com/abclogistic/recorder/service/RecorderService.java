@@ -88,10 +88,9 @@ public class RecorderService {
         }
         
         try {
-            driver.getTitle(); // Thử truy cập để kiểm tra driver còn hoạt động
+            driver.getTitle();
             return true;
         } catch (Exception e) {
-            // Driver đã bị đóng thủ công
             return false;
         }
     }
@@ -100,7 +99,6 @@ public class RecorderService {
         driver = null;
         isRecording = false;
     }
-
 
     public TestScript getCurrentScript() {
         return script;

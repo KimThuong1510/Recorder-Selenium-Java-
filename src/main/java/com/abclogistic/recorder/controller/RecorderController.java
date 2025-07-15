@@ -55,6 +55,7 @@ public class RecorderController {
         if (!recorderService.isRecording()) {
             model.addAttribute("error", "Không có phiên ghi hình nào đang hoạt động.");
             model.addAttribute("commands", recorderService.getCurrentScript().getCommands());
+            model.addAttribute("folder", folderName);
             return "recording";
         }
         
@@ -62,6 +63,7 @@ public class RecorderController {
         if (recorderService.getDriver() == null) {
             model.addAttribute("error", "Bạn đã đóng trình duyệt, không thể lấy lại các thao tác đã ghi nhận.");
             model.addAttribute("commands", recorderService.getCurrentScript().getCommands());
+            model.addAttribute("folder", folderName);
             return "recording";
         }
         
@@ -69,6 +71,7 @@ public class RecorderController {
         if (!recorderService.isDriverActive()) {
             model.addAttribute("error", "Bạn đã đóng trình duyệt, không thể lấy lại các thao tác đã ghi nhận.");
             model.addAttribute("commands", recorderService.getCurrentScript().getCommands());
+            model.addAttribute("folder", folderName);
             // Reset trạng thái vì driver đã bị đóng thủ công
             recorderService.resetRecordingState();
             return "recording";
@@ -81,6 +84,7 @@ public class RecorderController {
         }
         recorderService.stopRecording();
         model.addAttribute("commands", recorderService.getCurrentScript().getCommands());
+        model.addAttribute("folder", folderName);
         return "recording";
     }
 
@@ -112,14 +116,11 @@ public class RecorderController {
         if (script.getCommands().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
-        
         String xmlContent = testNGGeneratorService.generateTestNGXML(script, testName);
         ByteArrayResource resource = new ByteArrayResource(xmlContent.getBytes());
-        
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"testng.xml\"");
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + testName + ".xml\"");
         headers.add(HttpHeaders.CONTENT_TYPE, "application/xml");
-        
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(resource);
@@ -131,19 +132,14 @@ public class RecorderController {
         if (script.getCommands().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
-        
         String javaContent = testNGGeneratorService.generateTestClass(script, testName);
         ByteArrayResource resource = new ByteArrayResource(javaContent.getBytes());
-        
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"GeneratedTest.java\"");
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + testName + ".java\"");
         headers.add(HttpHeaders.CONTENT_TYPE, "text/plain");
-        
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(resource);
     }
-
-    // Hàm xử lý tên folder
 
 }

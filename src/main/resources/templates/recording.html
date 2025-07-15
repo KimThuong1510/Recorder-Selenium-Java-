@@ -30,15 +30,11 @@
                 <span>Tests</span>
             </div>
 
-            <div class="search-container">
-                <input type="text" class="search-input" placeholder="Search tests...">
-            </div>
-
             <div class="test-item-container">
                 <div class="test-item active" data-test="Untitled">Untitled*</div>
                 <div class="menu-button">⋮</div>
                 <div class="context-menu hidden">
-                    <div class="menu-item" id="openRenameModal">Rename</div>
+                    <!-- <div class="menu-item" id="openRenameModal">Rename</div> -->
                     <div class="menu-item" id="openExportModal">Export</div>
                 </div>
             </div>
@@ -66,9 +62,8 @@
                         </tbody>
                     </table>
                 </div>
-
-                <!-- Command Form -->
-                <div class="command-form">
+             
+                <!-- <div class="command-form">
                     <label class="form-label">Command</label>
                     <select class="form-select" id="commandSelect">
                         <option value="close">close</option>
@@ -93,33 +88,52 @@
 
                     <label class="form-label">Description</label>
                     <textarea class="form-textarea" id="descriptionInput"></textarea>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
     <!-- Export Modal -->
     <div id="exportModal" class="modal export-modal hidden">
         <div class="modal-content">
-            <div class="modal-header">Select language</div>
-            <form id="exportForm">
-                <div class="radio-group">
-
-                    <label><input type="radio" name="lang" value="java-junit" checked> Java TestTest</label>
-                    <label><input type="radio" name="lang" value="js-mocha">Java TestNG XML</label>
-                    <label><input type="radio" name="lang" value="python-pytest"> Python pytest</label>
-                    <label><input type="radio" name="lang" value="ruby-rspec"> Ruby RSpec</label>
+            <div class="modal-header">
+                Export Test Case
+                <span class="modal-close" id="closeExport">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group mb-3">
+                    <label class="modal-label">TEST CASE NAME</label>
+                    <input type="text" id="exportTestName" class="modal-input" placeholder="Enter test name" required>
                 </div>
-
-
-                <div class="modal-footer">
-                    <button type="submit" class="btn-export">EXPORT</button>
-                    <button type="button" class="btn-cancel" id="cancelExport">CANCEL</button>
+                <div class="form-group mb-3">
+                    <label class="modal-label">CHỌN KIỂU XUẤT FILE</label>
+                    <div class="radio-group">
+                        <label class="radio-item">
+                            <input type="radio" name="lang" value="java-junit" checked>
+                            <span class="radio-text">Java TestNG</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="lang" value="xml">
+                            <span class="radio-text">TestNG XML</span>
+                        </label>
+                    </div>
                 </div>
-            </form>
+            </div>
+            <div class="modal-footer">
+                <div class="download-buttons" id="downloadButtons" style="display: none;">
+                    <button type="button" class="btn-export me-2" id="downloadXmlBtn">
+                        <i class="bi bi-download"></i> Download TestNG 
+                    </button>
+                    <button type="button" class="btn-export me-2" id="downloadJavaBtn">
+                        <i class="bi bi-download"></i>Download XML
+                    </button>
+                </div>
+                <button type="button" class="btn-export" id="exportBtn">EXPORT</button>
+                <button type="button" class="btn-cancel" id="cancelExport">CANCEL</button>
+            </div>
         </div>
     </div>
 
-    <!-- Rename Modal -->
+    <!-- Rename Modal
     <div id="renameModal" class="modal rename-modal hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -131,14 +145,13 @@
                 <input type="text" id="renameInput" class="modal-input" value="Untitled">
             </div>
             <div class="modal-footer">
-                <div class="menu-item" id="">Rename</div>
-
+                <button class="btn-export" id="confirmRename">RENAME</button>
                 <button class="btn-cancel" id="cancelRename">CANCEL</button>
             </div>
         </div>
-    </div>
+    </div> -->
     <!-- Hiển thị thông báo lỗi nếu có -->
-    <div th:if="${exportResult}" class="alert alert-success alert-dismissible fade show m-3" role="alert">
+    <!-- <div th:if="${exportResult}" class="alert alert-success alert-dismissible fade show m-3" role="alert">
         <span th:text="${exportResult}">Export result</span>
         <div th:if="${testName}" class="mt-2">
             <a th:href="@{/download-testng-xml(testName=${testName})}" class="btn btn-sm btn-primary me-2">
@@ -149,18 +162,11 @@
             </a>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+    </div> -->
     
     <div class="action-buttons m-3">
         <form th:action="@{/stop}" method="post" style="display: inline;">
             <button type="submit" class="btn btn-danger">Stop Recording</button>
-        </form>
-        
-        <form th:action="@{/export-testng}" method="post" style="display: inline; margin-left: 10px;">
-            <div class="input-group" style="width: 300px;">
-                <input type="text" name="testName" class="form-control" placeholder="Enter test name" required>
-                <button type="submit" class="btn btn-success">Export TestNG</button>
-            </div>
         </form>
     </div>
 

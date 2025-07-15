@@ -213,29 +213,101 @@ class SeleniumIDEDetailed {
                   const exportBtn = document.getElementById("openExportModal");
                   const modal = document.getElementById("exportModal");
                   const cancelBtn = document.getElementById("cancelExport");
-                  const form = document.getElementById("exportForm");
+                  const closeBtn = document.getElementById("closeExport");
+                  const exportSubmitBtn = document.getElementById("exportBtn");
+                  const testNameInput = document.getElementById("exportTestName");
+                  const downloadButtons = document.getElementById("downloadButtons");
+                  const downloadXmlBtn = document.getElementById("downloadXmlBtn");
+                  const downloadJavaBtn = document.getElementById("downloadJavaBtn");
 
-                  // Gọi popup (gắn nút Export của bạn)
+                  // Debug: Kiểm tra các elements
+                  console.log("Export elements found:", {
+                      exportBtn: !!exportBtn,
+                      modal: !!modal,
+                      cancelBtn: !!cancelBtn,
+                      closeBtn: !!closeBtn,
+                      exportSubmitBtn: !!exportSubmitBtn,
+                      testNameInput: !!testNameInput,
+                      downloadButtons: !!downloadButtons,
+                      downloadXmlBtn: !!downloadXmlBtn,
+                      downloadJavaBtn: !!downloadJavaBtn
+                  });
+
+                  // Mở modal export
                   if (exportBtn) {
                       exportBtn.addEventListener("click", function () {
+                          console.log("Export button clicked");
                           modal.classList.remove("hidden");
+                          testNameInput.focus();
                       });
+                  } else {
+                      console.error("Export button not found!");
                   }
 
-                  cancelBtn.addEventListener("click", function () {
+                  // Đóng modal
+                  function closeModal() {
                       modal.classList.add("hidden");
-                  });
+                      testNameInput.value = '';
+                      downloadButtons.style.display = 'none';
+                      exportSubmitBtn.style.display = 'inline-block';
+                  }
 
-                  form.addEventListener("submit", function (e) {
-                      e.preventDefault();
-                      const formData = new FormData(form);
-                      const selectedLang = formData.get("lang");
-                      console.log("Export as:", selectedLang);
-                      // Thêm logic xuất file tùy định dạng tại đây...
+                  cancelBtn.addEventListener("click", closeModal);
+                  if (closeBtn) {
+                      closeBtn.addEventListener("click", closeModal);
+                  }
 
-                      modal.classList.add("hidden");
-                      alert("Exporting to: " + selectedLang);
-                  });
+                  // Xử lý export
+                  if (exportSubmitBtn) {
+                      exportSubmitBtn.addEventListener("click", function () {
+                          const testName = testNameInput.value.trim();
+                          if (!testName) {
+                              alert("Vui lòng nhập tên test case!");
+                              testNameInput.focus();
+                              return;
+                          }
+                          const selectedLang = document.querySelector('input[name="lang"]:checked').value;
+                          fetch('/export-testng', {
+                              method: 'POST',
+                              headers: {
+                                  'Content-Type': 'application/x-www-form-urlencoded',
+                              },
+                              body: `testName=${encodeURIComponent(testName)}`
+                          })
+                          .then(response => {
+                              if (response.ok) {
+                                  if (selectedLang === "java-junit") {
+                                      window.open(`/download-testng-java?testName=${encodeURIComponent(testName)}`, '_blank');
+                                  } else if (selectedLang === "xml") {
+                                      window.open(`/download-testng-xml?testName=${encodeURIComponent(testName)}`, '_blank');
+                                  }
+                                  // Cập nhật tên test case ở sidebar
+                                  const testItem = document.querySelector('.test-item.active');
+                                  if (testItem) {
+                                      testItem.textContent = testName;
+                                  }
+                                  closeModal();
+                              } else {
+                                  alert("Có lỗi xảy ra khi export!");
+                              }
+                          })
+                          .catch(error => {
+                              console.error('Error:', error);
+                              alert("Có lỗi xảy ra khi export!");
+                          });
+                      });
+                  } else {
+                      console.error("Export submit button not found!");
+                  }
+
+                  // Enter key để submit
+                  if (testNameInput) {
+                      testNameInput.addEventListener("keypress", function(e) {
+                          if (e.key === "Enter") {
+                              exportSubmitBtn.click();
+                          }
+                      });
+                  }
               });
 
           document.addEventListener("DOMContentLoaded", function () {
@@ -265,6 +337,11 @@ class SeleniumIDEDetailed {
                   currentTestItem.textContent = newName;
               }
               renameModal.classList.add("hidden");
+
+              // MỞ MODAL EXPORT NGAY SAU KHI ĐỔI TÊN
+              modal.classList.remove("hidden");
+              testNameInput.value = newName;
+              testNameInput.focus();
           });
       });
 

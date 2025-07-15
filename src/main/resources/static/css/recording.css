@@ -472,3 +472,79 @@
                 accent-color: #1976d2;
                 transform: scale(1.1);
             }
+
+            /* Enhanced radio items for export modal */
+            .radio-item {
+                display: flex;
+                align-items: center;
+                padding: 10px 12px;
+                border: 1px solid #e0e0e0;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                margin-bottom: 8px;
+            }
+
+            .radio-item:hover {
+                background-color: #f8f9fa;
+                border-color: #1976d2;
+            }
+
+            .radio-item input[type="radio"] {
+                margin-right: 12px;
+                cursor: pointer;
+            }
+
+            .radio-text {
+                font-size: 14px;
+                color: #333;
+                cursor: pointer;
+                font-weight: 400;
+            }
+
+            .radio-item input[type="radio"]:checked + .radio-text {
+                color: #1976d2;
+                font-weight: 500;
+            }
+
+            .radio-item input[type="radio"]:checked {
+                accent-color: #1976d2;
+            }
+
+            .radio-item:has(input[type="radio"]:checked) {
+                background-color: #e3f2fd;
+                border-color: #1976d2;
+            }
+
+            /* Download buttons styling */
+            .download-buttons {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+
+            .download-buttons .btn-export {
+                background-color: #28a745;
+                border-color: #28a745;
+                font-size: 13px;
+                padding: 8px 16px;
+            }
+
+            .download-buttons .btn-export:hover {
+                background-color: #218838;
+                border-color: #1e7e34;
+            }
+
+            .download-buttons .btn-export i {
+                margin-right: 5px;
+            }
+
+.blink {
+  animation: blink-animation 1s steps(2, start) infinite;
+  -webkit-animation: blink-animation 1s steps(2, start) infinite;
+}
+@keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}
